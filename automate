@@ -1,0 +1,42 @@
+#!/usr/bin/python
+
+import RPi.GPIO as GPIO
+import sys
+
+GPIO.setmode(GPIO.BCM)
+
+device = sys.argv[2]
+status = sys.argv[3]
+try:
+  who = sys.argv[1]
+  if who == 'cron':
+    print "Atomate Running by CRON"
+  elif who == 'startup':
+    load_values
+    exit
+except IndexError:
+  print "Running By User"
+
+if device == 'light':
+  print "Communicating with Light"
+  GPIO.setup(23, GPIO.OUT)
+  port = 23
+elif device == 'fan':
+  print "Communicating with Fan"
+  GPIO.setup(24, GPIO.OUT)
+  port = 24
+
+if status == 'on':
+  print "Turning on Device"
+  GPIO.output(port, 1)
+else:
+  print "Turning off Device"
+  GPIO.output(port, 0)
+ 
+
+def load_values():
+  file = open(status, r)
+  line1 = file.read()
+  line2 = file.read()
+  print line1
+  print line2
