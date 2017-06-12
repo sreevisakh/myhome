@@ -5,17 +5,8 @@ import sys
 
 GPIO.setmode(GPIO.BCM)
 
-device = sys.argv[2]
-status = sys.argv[3]
-try:
-  who = sys.argv[1]
-  if who == 'cron':
-    print "Atomate Running by CRON"
-  elif who == 'startup':
-    load_values
-    exit
-except IndexError:
-  print "Running By User"
+device = sys.argv[1]
+status = sys.argv[2]
 
 if device == 'light':
   print "Communicating with Light"
@@ -32,11 +23,3 @@ if status == 'on':
 else:
   print "Turning off Device"
   GPIO.output(port, 0)
- 
-
-def load_values():
-  file = open(status, r)
-  line1 = file.read()
-  line2 = file.read()
-  print line1
-  print line2
