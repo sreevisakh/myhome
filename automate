@@ -1,25 +1,72 @@
 #!/usr/bin/python
 
-import RPi.GPIO as GPIO
-import sys
+#import RPi.GPIO as GPIO
+import sys as sys
+import ConfigParser as configparser
 
-GPIO.setmode(GPIO.BCM)
 
-device = sys.argv[1]
-status = sys.argv[2]
+def main():
+  if len(sys.argv) > 2:
+    print 'Called with arguments'
+    print args
+    (device, status) = read_arguments()
+    print 'Updating Device Status'
+    update(device, status)
+    print 'Saving Device Status'
+    save(device, status)
+  else:
+    print 'Called without arguments'
+    config = read_config()
+    print 'Reading config from file'
+    print 'Updating status of device based on config'
+    update_from_config(config)
 
-if device == 'light':
-  print "Communicating with Light"
-  GPIO.setup(23, GPIO.OUT)
-  port = 23
-elif device == 'fan':
-  print "Communicating with Fan"
-  GPIO.setup(24, GPIO.OUT)
-  port = 24
 
-if status == 'on':
-  print "Turning on Device"
-  GPIO.output(port, 1)
-else:
-  print "Turning off Device"
-  GPIO.output(port, 0)
+def read_arguments():
+  device = sys.argv[1]
+  status = sys.argv[2]
+  if not device: 
+    return false
+  else:
+    return (device, status) 
+
+def read_config():
+  config = configparser.ConfigParser()  
+  config.read('config.ini')
+  return config
+
+
+def update_from_config(config):
+  keys = config.items('DEFAULT')
+  print keys
+  for key,value in keys:
+   update(key, config.get('DEFAULT', key))
+
+
+def update(device, status):
+  print 'Updating Status of '+ device +' to ' + status
+  GPIO.setmode(GPIO.BCM)
+  if device == 'light':
+    print "Communicating with Light"
+    GPIO.setup(23, GPIO.OUT)
+    port = 23
+  elif device == 'fan':
+    print "Communicating with Fan"
+    GPIO.setup(24, GPIO.OUT)
+    port = 24
+
+  if status == 'on':
+    print "Turning on Device"
+    GPIO.output(port, 1)
+  else:
+    print "Turning off Device"
+    GPIO.output(port, 0)
+
+def save(device, status):
+  print 'Saving status to file';
+  config = read_config()
+  config.set('DEFAULT', device, status)
+  with open('config.ini', 'w') as configfile:
+    config.write(configfile)
+
+main()
