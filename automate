@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-#import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import sys as sys
 import ConfigParser as configparser
 
@@ -8,7 +8,6 @@ import ConfigParser as configparser
 def main():
   if len(sys.argv) > 2:
     print 'Called with arguments'
-    print args
     (device, status) = read_arguments()
     print 'Updating Device Status'
     update(device, status)
@@ -66,6 +65,7 @@ def save(device, status):
   print 'Saving status to file';
   config = read_config()
   config.set('DEFAULT', device, status)
+  config.set('PRESENCE', device, True)
   with open('config.ini', 'w') as configfile:
     config.write(configfile)
 

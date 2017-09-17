@@ -1,0 +1,72 @@
+#!/usr/bin/python
+
+import os
+import ConfigParser as configparser
+import sched, time
+
+s = sched.scheduler(time.time, time.sleep)
+
+def main(sc):
+	os.system("sudo hcitool cc A0:D7:95:CC:43:29")
+	phone = not(os.system("hcitool rssi A0:D7:95:CC:43:29"))
+	manual = read_manual_settings()
+
+	#internet is available
+	if not phone:
+		print '[Phone] not available'
+		off_all()
+		update_manual_status()
+
+	if phone:
+		print '[Phone] available'
+		if not manual['light']:
+			on_light()
+		if not manual['fan']:
+			on_fan()
+
+	s.enter(10, 1, main, (sc,))
+
+def read_manual_settings():
+	config = read_config()
+	keys = config.items('PRESENCE')
+	manual = {'light': False, 'fan': False }
+  	print keys
+	for key,value in keys:
+		if key == 'light':
+			manual['light'] = value
+		if key == 'fan':
+			manual['fan'] = value
+	return manual
+
+
+def update_manual_status():
+	config = read_config()
+	config.set('PRESENCE', 'light', False)
+	config.set('PRESENCE', 'fan', False)
+  	with open('config.ini', 'w') as configfile:
+		config.write(configfile)
+
+
+def read_config():
+  config = configparser.ConfigParser()  
+  config.read('config.ini')
+  return config
+
+
+def off_all():
+	print 'Turning off all devices'
+	os.system('automate fan off')
+	os.system('automate light off')
+
+
+def on_light():
+	print 'Turnig on light'
+	os.system('automate light on')
+
+def on_fan():
+	print 'Turnig on fan'
+	os.system('automate fan on')
+
+s.enter(10, 1, main, (s,))
+s.run()
+
